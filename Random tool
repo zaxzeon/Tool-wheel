@@ -1,0 +1,166 @@
+local player = game.Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+
+local speedBoost = 38
+local defaultSpeed = 16
+
+-- Create the circular GUI
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+local wheelButton = Instance.new("TextButton", screenGui)
+
+-- Set up basic properties for wheelButton
+wheelButton.Position = UDim2.new(0.5, -100, 0.5, -100) -- Center position
+wheelButton.Size = UDim2.new(0, 200, 0, 200)
+wheelButton.Text = "Spin Wheel"
+
+-- Make the button circular
+local uiCorner = Instance.new("UICorner", wheelButton)
+uiCorner.CornerRadius = UDim.new(1, 0) -- Fully round corners to create a circle
+
+-- Draggable functionality (PC and Mobile)
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+-- Function to update the position of the GUI
+local function update(input)
+    local delta = input.Position - dragStart
+    wheelButton.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+-- Mouse or touch input to start dragging
+wheelButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = wheelButton.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+-- Mouse or touch movement to continue dragging
+wheelButton.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+-- Update GUI position while dragging
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
+    end
+end)
+
+-- Item names and chances
+local items = {
+    {name = "Goofy Dance", chance = 86},
+    {name = "Tpose", chance = 86},
+    {name = "Head First", chance = 86},
+    {name = "Super Speed", chance = 41},
+}
+
+-- Function to spin the wheel
+local function spinWheel()
+    local totalChance = 0
+    for _, item in pairs(items) do
+        totalChance = totalChance + item.chance
+    end
+
+    local rand = math.random(1, totalChance)
+    local cumulativeChance = 0
+    local selectedItem
+
+    for _, item in pairs(items) do
+        cumulativeChance = cumulativeChance + item.chance
+        if rand <= cumulativeChance then
+            selectedItem = item.name
+            break
+        end
+    end
+
+    return selectedItem
+end
+
+-- Create a function to claim the item
+local function claimItem(itemName)
+    local tool = Instance.new("Tool", player.Backpack)
+    tool.Name = itemName
+    tool.RequiresHandle = false
+
+    if itemName == "Super Speed" then
+        tool.Equipped:Connect(function()
+            char.Humanoid.WalkSpeed = speedBoost
+        end)
+
+        tool.Unequipped:Connect(function()
+            char.Humanoid.WalkSpeed = defaultSpeed
+        end)
+    else
+        local emoteAnim = Instance.new("Animation")
+        
+        -- Set different animations based on itemName
+        if itemName == "Goofy Dance" then
+            emoteAnim.AnimationId = "rbxassetid://1839223310" -- Goofy Dance animation
+        elseif itemName == "Tpose" then
+            emoteAnim.AnimationId = "rbxassetid://1234567890" -- Replace with actual Tpose animation ID
+        elseif itemName == "Head First" then
+            emoteAnim.AnimationId = "rbxassetid://0987654321" -- Replace with actual Head First animation ID
+        end
+
+        tool.Equipped:Connect(function()
+            local humanoid = char:FindFirstChild("Humanoid")
+            local animator = humanoid:FindFirstChildOfClass("Animator")
+            local animTrack = animator:LoadAnimation(emoteAnim)
+            animTrack.Looped = true
+            animTrack:Play()
+        end)
+
+        tool.Unequipped:Connect(function()
+            -- Stop the animation when the tool is unequipped
+            local humanoid = char:FindFirstChild("Humanoid")
+            if humanoid then
+                local animator = humanoid:FindFirstChildOfClass("Animator")
+                if animator then
+                    for _, animTrack in ipairs(animator:GetPlayingAnimationTracks()) do
+                        animTrack:Stop()
+                    end
+                end
+            end
+        end)
+    end
+end
+
+-- Spin button functionality
+wheelButton.MouseButton1Click:Connect(function()
+    local selectedItem = spinWheel()
+    print("Emote Win: " .. selectedItem)
+
+    -- Display message and claim button
+    local messageLabel = Instance.new("TextLabel", screenGui)
+    messageLabel.Text = "Emote Win: " .. selectedItem
+    messageLabel.Position = UDim2.new(0.5, -100, 0.3, 0)
+    messageLabel.Size = UDim2.new(0, 200, 0, 50)
+    
+    local claimButton = Instance.new("TextButton", screenGui)
+    claimButton.Text = "Claim"
+    claimButton.Position = UDim2.new(0.5, -100, 0.4, 0)
+    claimButton.Size = UDim2.new(0, 200, 0, 50)
+
+    claimButton.MouseButton1Click:Connect(function()
+        claimItem(selectedItem)
+        messageLabel:Destroy()
+        claimButton:Destroy()
+    end)
+end)
