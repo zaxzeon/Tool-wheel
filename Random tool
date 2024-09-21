@@ -97,7 +97,7 @@ local function spinWheel()
     return selectedItem
 end
 
--- Create a function to claim the item
+-- Function to claim the item
 local function claimItem(itemName)
     local tool = Instance.new("Tool", player.Backpack)
     tool.Name = itemName
@@ -116,7 +116,7 @@ local function claimItem(itemName)
         
         -- Set different animations based on itemName
         if itemName == "Goofy Dance" then
-            emoteAnim.AnimationId = "rbxassetid://2048473166" -- Updated Goofy Dance animation ID
+            emoteAnim.AnimationId = "rbxassetid://17861841334" -- New Goofy Dance animation ID
         elseif itemName == "Tpose" then
             emoteAnim.AnimationId = "rbxassetid://1234567890" -- Replace with actual Tpose animation ID
         elseif itemName == "Head First" then
@@ -172,4 +172,3 @@ wheelButton.MouseButton1Click:Connect(function()
         claimButton:Destroy()
     end)
 end)
-
