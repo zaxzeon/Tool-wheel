@@ -13,6 +13,10 @@ wheelButton.Position = UDim2.new(0.5, -100, 0.5, -100) -- Center position
 wheelButton.Size = UDim2.new(0, 200, 0, 200)
 wheelButton.Text = "Spin Wheel"
 
+-- Font customization
+wheelButton.Font = Enum.Font.GothamBold -- Set the font to Gotham Bold
+wheelButton.TextScaled = true -- Scale the text to fit the button
+
 -- Make the button circular
 local uiCorner = Instance.new("UICorner", wheelButton)
 uiCorner.CornerRadius = UDim.new(1, 0) -- Fully round corners to create a circle
@@ -112,7 +116,7 @@ local function claimItem(itemName)
         
         -- Set different animations based on itemName
         if itemName == "Goofy Dance" then
-            emoteAnim.AnimationId = "rbxassetid://1839223310" -- Goofy Dance animation
+            emoteAnim.AnimationId = "rbxassetid://2048473166" -- Updated Goofy Dance animation ID
         elseif itemName == "Tpose" then
             emoteAnim.AnimationId = "rbxassetid://1234567890" -- Replace with actual Tpose animation ID
         elseif itemName == "Head First" then
@@ -152,11 +156,15 @@ wheelButton.MouseButton1Click:Connect(function()
     messageLabel.Text = "Emote Win: " .. selectedItem
     messageLabel.Position = UDim2.new(0.5, -100, 0.3, 0)
     messageLabel.Size = UDim2.new(0, 200, 0, 50)
-    
+    messageLabel.Font = Enum.Font.GothamBold -- Set font to Gotham Bold
+    messageLabel.TextScaled = true
+
     local claimButton = Instance.new("TextButton", screenGui)
     claimButton.Text = "Claim"
     claimButton.Position = UDim2.new(0.5, -100, 0.4, 0)
     claimButton.Size = UDim2.new(0, 200, 0, 50)
+    claimButton.Font = Enum.Font.GothamBold -- Set font to Gotham Bold
+    claimButton.TextScaled = true
 
     claimButton.MouseButton1Click:Connect(function()
         claimItem(selectedItem)
@@ -164,3 +172,4 @@ wheelButton.MouseButton1Click:Connect(function()
         claimButton:Destroy()
     end)
 end)
+
